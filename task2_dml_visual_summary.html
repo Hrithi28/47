@@ -1,0 +1,208 @@
+
+<style>
+  .section-wrap { padding: 1rem 0 0.5rem; }
+  .section-title { font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 10px; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px; font-size: 13px; font-weight: 400; border: 1px solid; }
+  .pill-insert { background: #E1F5EE; border-color: #5DCAA5; color: #085041; }
+  .pill-update { background: #EEEDFE; border-color: #AFA9EC; color: #26215C; }
+  .pill-delete { background: #FAECE7; border-color: #F0997B; color: #4A1B0C; }
+  .pill-null   { background: #FAEEDA; border-color: #EF9F27; color: #412402; }
+  .pill-tx     { background: #E6F1FB; border-color: #85B7EB; color: #042C53; }
+  @media (prefers-color-scheme: dark) {
+    .pill-insert { background: #085041; border-color: #1D9E75; color: #9FE1CB; }
+    .pill-update { background: #26215C; border-color: #7F77DD; color: #CECBF6; }
+    .pill-delete { background: #4A1B0C; border-color: #D85A30; color: #F5C4B3; }
+    .pill-null   { background: #412402; border-color: #BA7517; color: #FAC775; }
+    .pill-tx     { background: #042C53; border-color: #378ADD; color: #B5D4F4; }
+  }
+  .code-block { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; line-height: 1.7; overflow-x: auto; }
+  .kw { color: #378ADD; font-weight: 500; }
+  .cm { color: var(--color-text-tertiary); }
+  .fn { color: #1D9E75; }
+  .val { color: #D85A30; }
+  .qa-card { border: 1px solid var(--color-border-tertiary); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+  .qa-q { padding: 10px 14px; background: var(--color-background-secondary); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .qa-q:hover { background: var(--color-background-tertiary); }
+  .qa-a { padding: 10px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; display: none; border-top: 1px solid var(--color-border-tertiary); }
+  .qa-a.open { display: block; }
+  .chev { transition: transform .2s; font-size: 11px; color: var(--color-text-tertiary); }
+  .chev.open { transform: rotate(180deg); }
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-border-tertiary); margin-bottom: 16px; }
+  .tab { padding: 8px 16px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); transition: color .15s, border-color .15s; }
+  .tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); font-weight: 500; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); color: var(--color-text-tertiary); }
+</style>
+
+<div class="section-wrap">
+  <p class="section-title">Concepts covered</p>
+  <div class="pill-row">
+    <span class="pill pill-insert">INSERT full row</span>
+    <span class="pill pill-insert">INSERT partial columns</span>
+    <span class="pill pill-insert">INSERT … SELECT</span>
+    <span class="pill pill-null">NULL vs DEFAULT</span>
+    <span class="pill pill-null">IS NULL / COALESCE</span>
+    <span class="pill pill-null">IFNULL</span>
+    <span class="pill pill-update">UPDATE single row</span>
+    <span class="pill pill-update">UPDATE multiple rows</span>
+    <span class="pill pill-update">UPDATE with subquery</span>
+    <span class="pill pill-update">UPDATE with JOIN</span>
+    <span class="pill pill-delete">DELETE with WHERE</span>
+    <span class="pill pill-delete">DELETE batch</span>
+    <span class="pill pill-delete">ON DELETE CASCADE</span>
+    <span class="pill pill-tx">TRANSACTION / ROLLBACK</span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('insert')">INSERT</div>
+    <div class="tab" onclick="switchTab('null')">NULL handling</div>
+    <div class="tab" onclick="switchTab('update')">UPDATE</div>
+    <div class="tab" onclick="switchTab('delete')">DELETE</div>
+    <div class="tab" onclick="switchTab('qa')">Interview Q&amp;A</div>
+  </div>
+
+  <div class="tab-panel active" id="tab-insert">
+    <p class="section-title">3 ways to insert data</p>
+    <div class="code-block">
+<span class="cm">-- 1. Full row (all columns)</span>
+<span class="kw">INSERT INTO</span> customers (first_name, last_name, email, phone)
+<span class="kw">VALUES</span> (<span class="val">'Arjun'</span>, <span class="val">'Sharma'</span>, <span class="val">'a@b.com'</span>, <span class="val">'9876543210'</span>);
+
+<span class="cm">-- 2. Partial columns — phone gets NULL, created_at gets DEFAULT</span>
+<span class="kw">INSERT INTO</span> customers (first_name, last_name, email)
+<span class="kw">VALUES</span> (<span class="val">'Divya'</span>, <span class="val">'Menon'</span>, <span class="val">'d@m.com'</span>);
+
+<span class="cm">-- 3. INSERT … SELECT (populate summary from live data)</span>
+<span class="kw">INSERT INTO</span> order_summary (customer_id, full_name, order_count, total_spent)
+<span class="kw">SELECT</span> c.customer_id,
+       <span class="fn">CONCAT</span>(c.first_name, <span class="val">' '</span>, c.last_name),
+       <span class="fn">COUNT</span>(o.order_id),
+       <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(o.total_amount), <span class="val">0</span>)
+<span class="kw">FROM</span>   customers c
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> c.customer_id = o.customer_id
+<span class="kw">GROUP BY</span> c.customer_id;</div>
+  </div>
+
+  <div class="tab-panel" id="tab-null">
+    <p class="section-title">NULL handling techniques</p>
+    <div class="code-block">
+<span class="cm">-- IS NULL — find missing phone numbers</span>
+<span class="kw">SELECT</span> customer_id, first_name,
+       <span class="fn">COALESCE</span>(phone, <span class="val">'Not provided'</span>) <span class="kw">AS</span> phone
+<span class="kw">FROM</span>   customers
+<span class="kw">WHERE</span>  phone <span class="kw">IS NULL</span>;
+
+<span class="cm">-- IFNULL — short form of COALESCE for one fallback</span>
+<span class="fn">IFNULL</span>(<span class="fn">CAST</span>(paid_at <span class="kw">AS</span> <span class="kw">CHAR</span>), <span class="val">'Not yet paid'</span>)
+
+<span class="cm">-- CASE WHEN for descriptive NULL labels</span>
+<span class="kw">CASE</span>
+    <span class="kw">WHEN</span> description <span class="kw">IS NULL THEN</span> <span class="val">'⚠ Missing'</span>
+    <span class="kw">ELSE</span> description
+<span class="kw">END</span>
+
+<span class="cm">-- NULL audit — count nulls per column</span>
+<span class="kw">SELECT</span> <span class="val">'customers.phone'</span>, <span class="fn">COUNT</span>(*) - <span class="fn">COUNT</span>(phone)
+<span class="kw">FROM</span> customers
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> <span class="val">'payments.paid_at'</span>, <span class="fn">COUNT</span>(*) - <span class="fn">COUNT</span>(paid_at)
+<span class="kw">FROM</span> payments;</div>
+  </div>
+
+  <div class="tab-panel" id="tab-update">
+    <p class="section-title">UPDATE patterns</p>
+    <div class="code-block">
+<span class="cm">-- Single row</span>
+<span class="kw">UPDATE</span> customers <span class="kw">SET</span> phone = <span class="val">'9111222333'</span>
+<span class="kw">WHERE</span>  customer_id = <span class="val">6</span>;
+
+<span class="cm">-- Multiple rows matching a condition</span>
+<span class="kw">UPDATE</span> products <span class="kw">SET</span> description = <span class="val">'No description yet.'</span>
+<span class="kw">WHERE</span>  description <span class="kw">IS NULL</span>;
+
+<span class="cm">-- Recalculate total_amount from child rows (correlated subquery)</span>
+<span class="kw">UPDATE</span> orders o
+<span class="kw">SET</span>    total_amount = (
+    <span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(oi.quantity * oi.unit_price), <span class="val">0</span>)
+    <span class="kw">FROM</span>   order_items oi
+    <span class="kw">WHERE</span>  oi.order_id = o.order_id
+);
+
+<span class="cm">-- UPDATE with JOIN — deduct stock for an order</span>
+<span class="kw">UPDATE</span> products p
+<span class="kw">JOIN</span>   order_items oi <span class="kw">ON</span> oi.product_id = p.product_id
+<span class="kw">SET</span>    p.stock_qty = p.stock_qty - oi.quantity
+<span class="kw">WHERE</span>  oi.order_id = <span class="val">6</span>;</div>
+  </div>
+
+  <div class="tab-panel" id="tab-delete">
+    <p class="section-title">DELETE &amp; ROLLBACK</p>
+    <div class="code-block">
+<span class="cm">-- Safe delete — always use WHERE</span>
+<span class="kw">DELETE FROM</span> reviews <span class="kw">WHERE</span> review_id = <span class="val">5</span>;
+
+<span class="cm">-- Batch delete — remove cancelled orders</span>
+<span class="kw">DELETE FROM</span> order_items
+<span class="kw">WHERE</span> order_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> order_id <span class="kw">FROM</span> orders <span class="kw">WHERE</span> status = <span class="val">'cancelled'</span>
+);
+<span class="kw">DELETE FROM</span> orders <span class="kw">WHERE</span> status = <span class="val">'cancelled'</span>;
+<span class="cm">-- ON DELETE CASCADE removes payment row automatically ↑</span>
+
+<span class="cm">-- ROLLBACK — undo an accidental deletion</span>
+<span class="kw">START TRANSACTION</span>;
+    <span class="kw">DELETE FROM</span> products <span class="kw">WHERE</span> stock_qty &lt; <span class="val">30</span>;
+<span class="kw">ROLLBACK</span>; <span class="cm">-- all rows restored, nothing committed</span></div>
+  </div>
+
+  <div class="tab-panel" id="tab-qa">
+    <p class="section-title">Interview Q&amp;A — click to expand</p>
+    <div id="qa-list"></div>
+  </div>
+</div>
+
+<script>
+const qas = [
+  ["NULL vs 0?", "NULL means unknown/missing — not a value at all. 0 is a real integer. WHERE x = 0 and WHERE x IS NULL return completely different rows; they never overlap."],
+  ["What is a DEFAULT constraint?", "A value auto-filled when INSERT doesn't specify a column. E.g. created_at DATETIME DEFAULT CURRENT_TIMESTAMP fills the timestamp without you writing it."],
+  ["How does IS NULL work?", "IS NULL is the only correct test for NULLs. = NULL always evaluates to UNKNOWN, so it never matches anything — even another NULL."],
+  ["How do you update multiple rows?", "Use a WHERE condition that matches multiple rows: UPDATE products SET description='...' WHERE description IS NULL — every matching row is updated in one statement."],
+  ["Can we insert partial values?", "Yes. List only the columns you want: INSERT INTO customers (first_name, last_name, email) VALUES (...). Omitted columns get their DEFAULT or NULL."],
+  ["What if a NOT NULL field is left empty?", "MySQL raises ERROR 1364: Field 'x' doesn't have a default value and rejects the INSERT entirely."],
+  ["How do you rollback a deletion?", "Wrap it in a transaction: START TRANSACTION; DELETE ...; then ROLLBACK; — nothing is permanently removed until COMMIT is called."],
+  ["How to insert values using SELECT?", "INSERT INTO target (col1, col2) SELECT expr1, expr2 FROM source WHERE ... — copies or transforms data from one table into another in one step."],
+  ["What is ON DELETE CASCADE?", "A FK option that auto-deletes child rows when the parent row is deleted. payments.order_id has ON DELETE CASCADE, so deleting an order auto-removes its payment."],
+  ["Difference between NULL and 'No value'?", "NULL takes no storage space in most engines and is excluded from COUNT(col), AVG(), SUM() — they ignore NULLs. An empty string '' counts as a real value."],
+];
+
+const list = document.getElementById('qa-list');
+qas.forEach(([q, a], i) => {
+  list.innerHTML += `
+    <div class="qa-card">
+      <div class="qa-q" onclick="toggleQA(${i})">
+        <span>${i+1}. ${q}</span>
+        <span class="chev" id="chev-${i}">▼</span>
+      </div>
+      <div class="qa-a" id="qa-${i}">${a}</div>
+    </div>`;
+});
+
+function toggleQA(i) {
+  const a = document.getElementById('qa-'+i);
+  const c = document.getElementById('chev-'+i);
+  const open = a.classList.toggle('open');
+  c.classList.toggle('open', open);
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const ids = ['insert','null','update','delete','qa'];
+    t.classList.toggle('active', ids[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-'+name);
+  });
+}
+</script>
